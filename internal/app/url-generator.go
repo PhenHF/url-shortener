@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
@@ -16,10 +15,8 @@ var lenght = 8
 func GetShortUrl() string {
 	var su []rune
 	for i := 0; i < lenght; i++ {
-		su = append(su, letterRunes[rand.Intn(len(letterRunes))] ) 
-		
-	}
+		su = append(su, letterRunes[rand.Intn(len(letterRunes))])
 
+	}
 	return string(su)
 }
-

@@ -10,65 +10,60 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
 func TestRedirectToOriginalUrl(t *testing.T) {
 	shortUrl := "stbfg"
-	
-	app.ShortOriginalURL[shortUrl] = "https://www.google.com/" 
-	
+
+	app.ShortOriginalURL[shortUrl] = "https://www.google.com/"
+
 	type want struct {
-		code int
-		location string		
+		code     int
+		location string
 	}
-	
+
 	tests := []struct {
-		name string
-		shorturl string
+		name        string
+		shorturl    string
 		contentType string
-		want want
+		want        want
 	}{
 		{
-			name: "test with correct shortUrl and content-type: text/plain",
-			shorturl: shortUrl,
+			name:        "test with correct shortUrl and content-type: text/plain",
+			shorturl:    shortUrl,
 			contentType: "text/plain",
 			want: want{
-				code: 307,
-				location: app.ShortOriginalURL[shortUrl], 
+				code:     307,
+				location: app.ShortOriginalURL[shortUrl],
 			},
 		},
 
 		{
-			name: "test with NOT correct shortUrl and content-type: text/plain",
-			shorturl: "asdasd",
+			name:        "test with NOT correct shortUrl and content-type: text/plain",
+			shorturl:    "asdasd",
 			contentType: "text/plain",
 			want: want{
-				code: 400,
+				code:     400,
 				location: "",
 			},
-
 		},
 		{
-			name: "test with empty {id} and contet-type: text/plain",
-			shorturl: "",
+			name:        "test with empty {id} and contet-type: text/plain",
+			shorturl:    "",
 			contentType: "text/plain",
 			want: want{
-				code: 400,
+				code:     400,
 				location: "",
 			},
-
 		},
 
 		{
-			name: "test with correct shortUrl and content-type: '' ",
-			shorturl: shortUrl,
+			name:        "test with correct shortUrl and content-type: '' ",
+			shorturl:    shortUrl,
 			contentType: "",
 			want: want{
-				code: 400,
-				location: "", 
+				code:     400,
+				location: "",
 			},
 		},
-
-
 	}
 
 	for _, test := range tests {
@@ -78,11 +73,11 @@ func TestRedirectToOriginalUrl(t *testing.T) {
 			req.SetPathValue("id", test.shorturl)
 
 			wr := httptest.NewRecorder()
-			
+
 			app.RedirectToOriginalUrl(wr, req)
-					
+
 			res := wr.Result()
-	
+
 			assert.Equal(t, res.StatusCode, test.want.code)
 			assert.Equal(t, res.Header.Get("Location"), test.want.location)
 
@@ -90,78 +85,76 @@ func TestRedirectToOriginalUrl(t *testing.T) {
 	}
 }
 
-
 func TestReturnShortUrl(t *testing.T) {
 	type want struct {
-		code int
+		code        int
 		contentType string
 	}
 
 	tests := []struct {
-		name string
-		method string
-		body []byte
+		name        string
+		method      string
+		body        []byte
 		contentType string
-		want want
+		want        want
 	}{
 		{
-			name: "test with correct request",
-			method: http.MethodPost,
-			body: []byte("https://www.google.com/"),
+			name:        "test with correct request",
+			method:      http.MethodPost,
+			body:        []byte("https://www.google.com/"),
 			contentType: "text/plain",
 			want: want{
-				code: 201,
+				code:        201,
 				contentType: "text/plain",
 			},
 		},
 		{
-			name: "test with content-type: ''",
-			method: http.MethodPost,
-			body: []byte("https://hh.ru/"),
+			name:        "test with content-type: ''",
+			method:      http.MethodPost,
+			body:        []byte("https://hh.ru/"),
 			contentType: "",
 			want: want{
-				code: 400,
+				code:        400,
 				contentType: "",
 			},
 		},
 		{
-			name: "test with empty body",
-			method: http.MethodPost,
-			body: []byte(""),
+			name:        "test with empty body",
+			method:      http.MethodPost,
+			body:        []byte(""),
 			contentType: "text/plain",
 			want: want{
-				code: 400,
+				code:        400,
 				contentType: "",
 			},
 		},
 		{
-			name: "test with request.Method NOT POST ",
-			method: http.MethodGet,
-			body: []byte(""),
+			name:        "test with request.Method NOT POST ",
+			method:      http.MethodGet,
+			body:        []byte(""),
 			contentType: "text/plain",
 			want: want{
-				code: 400,
+				code:        400,
 				contentType: "",
 			},
 		},
-
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			buf := bytes.NewBuffer(test.body)
-			
+
 			req := httptest.NewRequest(test.method, "/", buf)
 			req.Header.Set("Content-Type", test.contentType)
-			
+
 			wr := httptest.NewRecorder()
-			
+
 			app.ReturnShortUrl(wr, req)
-			
+
 			res := wr.Result()
-			
+
 			assert.Equal(t, test.want.code, res.StatusCode)
-			assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))	
+			assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))
 		})
 	}
 }

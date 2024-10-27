@@ -6,12 +6,10 @@ import (
 	"github.com/PhenHF/url-shortener/internal/app"
 )
 
-
 func init() {
 	http.HandleFunc(`/`, app.ReturnShortUrl)
 	http.HandleFunc(`/{id}`, app.RedirectToOriginalUrl)
 }
-
 
 func main() {
 	run()
@@ -23,4 +21,3 @@ func run() {
 		panic(err)
 	}
 }
-
