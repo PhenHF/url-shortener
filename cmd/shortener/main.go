@@ -23,7 +23,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	const expectedHeader = "text/plain"
 	
 	// fmt.Println(app.OriginalShortURL)
-	fmt.Println(app.ShortOriginalURL)
+	// fmt.Println(app.ShortOriginalURL)
 
 	
 	if ct := r.Header.Get("Content-Type"); ct != expectedHeader {
@@ -32,6 +32,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodGet {
+		fmt.Println(app.ShortOriginalURL)
 		if r.PathValue("id") == "" {
 			fmt.Println("2")
 			w.WriteHeader(http.StatusBadRequest)
@@ -44,9 +45,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Write([]byte(originUrl))
 		w.Header().Set("Location", originUrl)
-		w.WriteHeader(http.StatusTemporaryRedirect)		
+		// w.WriteHeader(http.StatusTemporaryRedirect)		
+		// w.Write([]byte(originUrl))
 	
 	} else if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
@@ -59,8 +60,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		shortUrl := app.GetShortUrl()
 		
 		app.ShortOriginalURL[shortUrl] = string(body)
-		w.Write([]byte("http://localhost:8080/" + shortUrl))
 		w.WriteHeader(http.StatusCreated)		
+		w.Write([]byte("http://localhost:8080/" + shortUrl))
 		return
 	}
 
