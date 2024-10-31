@@ -3,21 +3,28 @@ package main
 import (
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/PhenHF/url-shortener/internal/app"
 )
 
-func init() {
-	http.HandleFunc(`/`, app.ReturnShortUrl)
-	http.HandleFunc(`/{id}`, app.RedirectToOriginalUrl)
-}
 
 func main() {
-	run()
+	rt := chi.NewRouter()
+	
+	rt.Use(app.CheckContentType)
+	
+	rt.Post(`/`, app.ReturnShortUrl)
+	rt.Get(`/{id}`, app.RedirectToOriginalUrl)
+
+	run(rt)
 }
 
-func run() {
-	err := http.ListenAndServe(`:8080`, nil)
+func run(rt *chi.Mux) {
+	err := http.ListenAndServe(`:8080`, rt)
 	if err != nil {
 		panic(err)
 	}
+
+	
 }

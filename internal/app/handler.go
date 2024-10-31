@@ -6,22 +6,15 @@ import (
 	"net/http"
 )
 
-func checkContentType(w http.ResponseWriter, r *http.Request) {
-	const expectedHeader = "text/plain"
-	if ct := r.Header.Get("Content-Type"); ct != expectedHeader {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-}
+// func checkContentType(w http.ResponseWriter, r *http.Request) {
+// 	const expectedHeader = "text/plain"
+// 	if ct := r.Header.Get("Content-Type"); ct != expectedHeader {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
+// }
 
 func RedirectToOriginalUrl(w http.ResponseWriter, r *http.Request) {
-	checkContentType(w, r)
-
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	if r.PathValue("id") == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -39,13 +32,6 @@ func RedirectToOriginalUrl(w http.ResponseWriter, r *http.Request) {
 }
 
 func ReturnShortUrl(w http.ResponseWriter, r *http.Request) {
-	checkContentType(w, r)
-
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)

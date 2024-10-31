@@ -54,16 +54,6 @@ func TestRedirectToOriginalUrl(t *testing.T) {
 				location: "",
 			},
 		},
-
-		{
-			name:        "test with correct shortUrl and content-type: '' ",
-			shorturl:    shortUrl,
-			contentType: "",
-			want: want{
-				code:     400,
-				location: "",
-			},
-		},
 	}
 
 	for _, test := range tests {
@@ -121,16 +111,6 @@ func TestReturnShortUrl(t *testing.T) {
 		{
 			name:        "test with empty body",
 			method:      http.MethodPost,
-			body:        []byte(""),
-			contentType: "text/plain",
-			want: want{
-				code:        400,
-				contentType: "",
-			},
-		},
-		{
-			name:        "test with request.Method NOT POST ",
-			method:      http.MethodGet,
 			body:        []byte(""),
 			contentType: "text/plain",
 			want: want{
