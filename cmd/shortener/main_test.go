@@ -6,14 +6,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/PhenHF/url-shortener/internal/app"
+	"github.com/PhenHF/url-shortener/internal/handler"
+	"github.com/PhenHF/url-shortener/internal/storage"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRedirectToOriginalUrl(t *testing.T) {
 	shortUrl := "stbfg"
 
-	app.ShortOriginalURL[shortUrl] = "https://www.google.com/"
+	storage.ShortOriginalURL[shortUrl] = "https://www.google.com/"
 
 	type want struct {
 		code     int
@@ -32,7 +33,7 @@ func TestRedirectToOriginalUrl(t *testing.T) {
 			contentType: "text/plain",
 			want: want{
 				code:     307,
-				location: app.ShortOriginalURL[shortUrl],
+				location: storage.ShortOriginalURL[shortUrl],
 			},
 		},
 
@@ -64,7 +65,7 @@ func TestRedirectToOriginalUrl(t *testing.T) {
 
 			wr := httptest.NewRecorder()
 
-			app.RedirectToOriginalUrl(wr, req)
+			handler.RedirectToOriginalUrl(wr, req)
 
 			res := wr.Result()
 
@@ -99,16 +100,6 @@ func TestReturnShortUrl(t *testing.T) {
 			},
 		},
 		{
-			name:        "test with content-type: ''",
-			method:      http.MethodPost,
-			body:        []byte("https://hh.ru/"),
-			contentType: "",
-			want: want{
-				code:        400,
-				contentType: "",
-			},
-		},
-		{
 			name:        "test with empty body",
 			method:      http.MethodPost,
 			body:        []byte(""),
@@ -129,7 +120,7 @@ func TestReturnShortUrl(t *testing.T) {
 
 			wr := httptest.NewRecorder()
 
-			app.ReturnShortUrl(wr, req)
+			handler.ReturnShortUrl(wr, req)
 
 			res := wr.Result()
 

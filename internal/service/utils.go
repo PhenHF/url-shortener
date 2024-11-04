@@ -1,4 +1,4 @@
-package app
+package servise
 
 import (
 	"math/rand"

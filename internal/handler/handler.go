@@ -1,9 +1,12 @@
-package app
+package handler
 
 import (
 	"fmt"
 	"io"
 	"net/http"
+
+	servise "github.com/PhenHF/url-shortener/internal/service"
+	storage "github.com/PhenHF/url-shortener/internal/storage"
 )
 
 // func checkContentType(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +23,7 @@ func RedirectToOriginalUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	originUrl, ok := ShortOriginalURL[r.PathValue("id")]
+	originUrl, ok := storage.ShortOriginalURL[r.PathValue("id")]
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -41,9 +44,9 @@ func ReturnShortUrl(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	shortUrl := GetShortUrl()
+	shortUrl := servise.GetShortUrl()
 
-	ShortOriginalURL[shortUrl] = string(body)
+	storage.ShortOriginalURL[shortUrl] = string(body)
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)

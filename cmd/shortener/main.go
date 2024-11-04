@@ -5,17 +5,18 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/PhenHF/url-shortener/internal/app"
+	handler "github.com/PhenHF/url-shortener/internal/handler"
+	middleware "github.com/PhenHF/url-shortener/internal/middleware"
 )
 
 
 func main() {
 	rt := chi.NewRouter()
+
+	rt.Use(middleware.CheckContentType)
 	
-	rt.Use(app.CheckContentType)
-	
-	rt.Post(`/`, app.ReturnShortUrl)
-	rt.Get(`/{id}`, app.RedirectToOriginalUrl)
+	rt.Post(`/`, handler.ReturnShortUrl)
+	rt.Get(`/{id}`, handler.RedirectToOriginalUrl)
 
 	run(rt)
 }
