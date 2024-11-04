@@ -11,10 +11,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRedirectToOriginalUrl(t *testing.T) {
-	shortUrl := "stbfg"
+func mockGenerator() string {
+	return "stbfg"
+}
 
-	storage.ShortOriginalURL[shortUrl] = "https://www.google.com/"
+func prepareStorageForTest() (storage.UrlStorage, string) {
+	urlStorage := storage.UrlStorage{}
+	
+	short := mockGenerator()
+
+	urlStorage.Add("https://www.google.com/", short)
+
+	return urlStorage, short
+}
+
+
+func TestRedirectToOriginalUrl(t *testing.T) {
+	urlStorage, shorUrl := prepareStorageForTest()
 
 	type want struct {
 		code     int
@@ -29,11 +42,11 @@ func TestRedirectToOriginalUrl(t *testing.T) {
 	}{
 		{
 			name:        "test with correct shortUrl and content-type: text/plain",
-			shorturl:    shortUrl,
+			shorturl:    shorUrl,
 			contentType: "text/plain",
 			want: want{
 				code:     307,
-				location: storage.ShortOriginalURL[shortUrl],
+				location: "https://www.google.com/",
 			},
 		},
 
@@ -65,7 +78,7 @@ func TestRedirectToOriginalUrl(t *testing.T) {
 
 			wr := httptest.NewRecorder()
 
-			handler.RedirectToOriginalUrl(wr, req)
+			handler.RedirectToOriginalUrl(&urlStorage)(wr, req)
 
 			res := wr.Result()
 
@@ -77,6 +90,8 @@ func TestRedirectToOriginalUrl(t *testing.T) {
 }
 
 func TestReturnShortUrl(t *testing.T) {
+	urlStorage, _ := prepareStorageForTest()
+
 	type want struct {
 		code        int
 		contentType string
@@ -120,7 +135,7 @@ func TestReturnShortUrl(t *testing.T) {
 
 			wr := httptest.NewRecorder()
 
-			handler.ReturnShortUrl(wr, req)
+			handler.ReturnShortUrl(mockGenerator, &urlStorage)(wr, req)
 
 			res := wr.Result()
 
