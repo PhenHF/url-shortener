@@ -5,10 +5,9 @@ import (
 	"net/http"
 )
 
-
 func CheckContentType(next http.Handler) http.Handler {
 	const expectedHeader = "text/plain"
-	
+
 	return http.HandlerFunc((func(w http.ResponseWriter, r *http.Request) {
 		if ct := r.Header.Get("Content-Type"); ct != expectedHeader {
 			w.WriteHeader(http.StatusBadRequest)
@@ -18,5 +17,5 @@ func CheckContentType(next http.Handler) http.Handler {
 
 		fmt.Println(r.Method)
 	}))
-	
+
 }

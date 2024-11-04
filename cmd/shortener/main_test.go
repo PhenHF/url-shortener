@@ -17,14 +17,13 @@ func mockGenerator() string {
 
 func prepareStorageForTest() (storage.UrlStorage, string) {
 	urlStorage := storage.UrlStorage{}
-	
+
 	short := mockGenerator()
 
 	urlStorage.Add("https://www.google.com/", short)
 
 	return urlStorage, short
 }
-
 
 func TestRedirectToOriginalUrl(t *testing.T) {
 	urlStorage, shorUrl := prepareStorageForTest()
