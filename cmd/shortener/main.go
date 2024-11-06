@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -17,19 +16,14 @@ func main() {
 	var urlStorage = storage.UrlStorage{}
 
 	rt := chi.NewRouter()
-
 	rt.Use(middleware.CheckContentType)
-
-	rt.Post(`/`, handler.ReturnShortUrl(service.GetShortUrl, &urlStorage))
+	rt.Post(`/`, handler.ReturnShortUrl(service.GetShortUrl, &urlStorage, config.NetAddress.ResultAddr))
 	rt.Get(`/{id}`, handler.RedirectToOriginalUrl(&urlStorage))
 
 	run(rt)
 }
 
 func run(rt *chi.Mux) {
-	config.GetNetAddr()
-	flag.Parse()
-
 	err := http.ListenAndServe(config.NetAddress.StartServer, rt)
 	if err != nil {
 		panic(err)

@@ -134,7 +134,7 @@ func TestReturnShortUrl(t *testing.T) {
 
 			wr := httptest.NewRecorder()
 
-			handler.ReturnShortUrl(mockGenerator, &urlStorage)(wr, req)
+			handler.ReturnShortUrl(mockGenerator, &urlStorage, "http://localhost:8080/")(wr, req)
 
 			res := wr.Result()
 
