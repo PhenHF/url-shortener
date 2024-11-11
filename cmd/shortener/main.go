@@ -27,7 +27,7 @@ func run(rt *chi.Mux) error {
 	if err := logger.Initialize("INFO"); err != nil {
 		return err
 	}
-	
+
 	err := http.ListenAndServe(config.NetAddress.StartServer, rt)
 	if err != nil {
 		panic(err)

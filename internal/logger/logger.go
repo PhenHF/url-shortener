@@ -13,7 +13,7 @@ var Log *zap.Logger = zap.NewNop()
 type (
 	responseData struct {
 		statusCode int
-		size int
+		size       int
 	}
 
 	loggingResponseWriter struct {
@@ -59,26 +59,26 @@ func RequestLogger(h http.Handler) http.Handler {
 		uri := r.RequestURI
 
 		resData := &responseData{
-			size: 0,
+			size:       0,
 			statusCode: 0,
 		}
 
 		lwr := loggingResponseWriter{
 			ResponseWriter: w,
-			responseData: resData,
+			responseData:   resData,
 		}
 
 		h.ServeHTTP(&lwr, r)
-		
+
 		duration := time.Since(start)
 		Log.Info("request",
 			zap.String("method", method),
 			zap.String("uri", uri),
 			zap.String("duration", duration.String()),
 		)
-		Log.Info("response", 
+		Log.Info("response",
 			zap.String("statusCode", strconv.Itoa(resData.statusCode)),
 			zap.String("response size", strconv.Itoa(resData.size)),
 		)
 	})
-} 
+}
