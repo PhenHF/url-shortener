@@ -57,7 +57,6 @@ func RequestLogger(h http.Handler) http.Handler {
 		start := time.Now()
 		method := r.Method
 		uri := r.RequestURI
-
 		resData := &responseData{
 			size:       0,
 			statusCode: 0,
