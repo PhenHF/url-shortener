@@ -2,59 +2,66 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	storage "github.com/PhenHF/url-shortener/internal/storage"
 )
 
-func RedirectToOriginalUrl(urlStorage *storage.UrlStorage) http.HandlerFunc {
+func RedirectToOriginalUrl(urlStorage *[]storage.Url) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.PathValue("id") == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		originUrl, err := urlStorage.Get(r.PathValue("id"))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+		shortUrl := r.PathValue("id")
+		fmt.Println(shortUrl)
+		for _, url := range *urlStorage {
+			if url.ShortUrl == shortUrl {
+				w.Header().Set("Location", url.OriginalUrl)
+				w.WriteHeader(http.StatusTemporaryRedirect)
+				return
+			}
 		}
-
-		w.Header().Set("Location", originUrl)
-
-		w.WriteHeader(http.StatusTemporaryRedirect)
-
+		w.WriteHeader(http.StatusBadRequest)
 	})
 }
 
-func ReturnShortUrl(generator func() string, urlStorage *storage.UrlStorage, resultAddr string) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {		
-		var longUrl struct {
-			Url string `json:"url"`
-		}
-
+func ReturnShortUrl(generator func() string, resultAddr string) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var resultUrl struct {
-			Url string `json:"result"`
+			Url string `json:"response"`
 		}
+		
+		url := storage.Url{}
 
-		if err := json.NewDecoder(r.Body).Decode(&longUrl); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+		urlProducer, err := storage.NewUrlProducer("url.json")
+		if err != nil {
+			return
+		}
+		defer urlProducer.Close()
+		
+		
+		if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
+			return 
+		}
+		
+		if len(url.OriginalUrl) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		
+		url.ShortUrl = generator()
+		
+		urlProducer.WriteUrl(&url)
+		resultUrl.Url = resultAddr + url.ShortUrl
+
+		response, err := json.Marshal(resultUrl)
+		if err != nil {
 			return
 		}
 
-		if len(longUrl.Url) == 0 {
-			w.WriteHeader(http.StatusBadRequest)
-		}
-
-		short := generator()
-		urlStorage.Add(longUrl.Url, short)
-
-		resultUrl.Url = resultAddr + short
-		
-		response, err := json.Marshal(resultUrl)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)

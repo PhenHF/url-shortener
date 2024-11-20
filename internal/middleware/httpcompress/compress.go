@@ -1,25 +1,22 @@
 package httpcompress
 
 import (
-	"fmt"
 	"net/http"
 	"slices"
 	"strings"
 )
 
-// Middleware for commpress and decompress request and response
+// Middleware for write and read commpress request and response
 func GzipMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ow := w
 
 		if !slices.Contains(contentType, r.Header.Get("Content-Type")) {
-			fmt.Println("blla")
 			next.ServeHTTP(w, r)
 			return
 		}
 
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
-			fmt.Println("blla")
 			cw := newCompressWriter(w)
 			ow = cw
 			defer cw.Close()

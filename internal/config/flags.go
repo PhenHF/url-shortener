@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	GetNetAddr()
+	loadEnv()
 }
 
 var NetAddress struct {
@@ -14,7 +14,7 @@ var NetAddress struct {
 	ResultAddr  string
 }
 
-func GetNetAddr() {
+func loadEnv() {
 	flag.StringVar(&NetAddress.StartServer, "a", ":8080", "addr for start a server")
 	flag.StringVar(&NetAddress.ResultAddr, "b", "http://localhost:8080/", "addr for base result URL")
 

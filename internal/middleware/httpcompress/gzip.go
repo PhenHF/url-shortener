@@ -25,7 +25,6 @@ func (cw *compressWriter) WriteHeader(statusCode int) {
 	if statusCode < 300 {
 		cw.w.Header().Set("Content-Encoding", "gzip")
 	}
-	
 	cw.w.WriteHeader(statusCode)
 }
 

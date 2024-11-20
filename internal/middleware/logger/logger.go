@@ -16,7 +16,7 @@ type (
 		size       int
 	}
 
-	loggingResponseWriter struct {
+	LoggingResponseWriter struct {
 		http.ResponseWriter
 		responseData *responseData
 	}
@@ -41,16 +41,17 @@ func Initialize(level string) error {
 	return nil
 }
 
-func (lrw *loggingResponseWriter) Write(b []byte) (int, error) {
+func (lrw *LoggingResponseWriter) Write(b []byte) (int, error) {
 	size, err := lrw.ResponseWriter.Write(b)
 	lrw.responseData.size += size
 	return size, err
 }
 
-func (lrw *loggingResponseWriter) WriteHeader(statusCode int) {
+func (lrw *LoggingResponseWriter) WriteHeader(statusCode int) {
 	lrw.ResponseWriter.WriteHeader(statusCode)
 	lrw.responseData.statusCode = statusCode
 }
+
 
 func RequestLogger(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -62,13 +63,13 @@ func RequestLogger(h http.Handler) http.Handler {
 			statusCode: 0,
 		}
 
-		lwr := loggingResponseWriter{
+		lwr := LoggingResponseWriter{
 			ResponseWriter: w,
 			responseData:   resData,
 		}
-
+		
 		h.ServeHTTP(&lwr, r)
-
+		
 		duration := time.Since(start)
 		Log.Info("request",
 			zap.String("method", method),
