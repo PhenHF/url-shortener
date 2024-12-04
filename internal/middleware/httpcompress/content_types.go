@@ -1,6 +1,5 @@
 package httpcompress
 
-
 var contentType = []string{
 	"application/javascript",
 	"application/json",
@@ -8,5 +7,4 @@ var contentType = []string{
 	"text/html",
 	"text/plain",
 	"text/xml",
-} 
-
+}

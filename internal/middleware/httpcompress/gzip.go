@@ -6,12 +6,10 @@ import (
 	"net/http"
 )
 
-
 type compressWriter struct {
-	w http.ResponseWriter
+	w  http.ResponseWriter
 	zw *gzip.Writer
 }
-
 
 func (cw *compressWriter) Header() http.Header {
 	return cw.w.Header()
@@ -34,27 +32,26 @@ func (cw *compressWriter) Close() error {
 
 func newCompressWriter(w http.ResponseWriter) *compressWriter {
 	return &compressWriter{
-		w: w,
+		w:  w,
 		zw: gzip.NewWriter(w),
 	}
 }
 
 type compressReader struct {
-	r io.ReadCloser
+	r  io.ReadCloser
 	zr *gzip.Reader
 }
-
 
 func (cr compressReader) Read(p []byte) (n int, err error) {
 	return cr.zr.Read(p)
 }
 
 func (cr *compressReader) Close() error {
-    if err := cr.r.Close(); err != nil {
-        return err
-    }
-    return cr.zr.Close()
-} 
+	if err := cr.r.Close(); err != nil {
+		return err
+	}
+	return cr.zr.Close()
+}
 
 func newCompressReader(r io.ReadCloser) (*compressReader, error) {
 	zr, err := gzip.NewReader(r)
@@ -63,7 +60,7 @@ func newCompressReader(r io.ReadCloser) (*compressReader, error) {
 	}
 
 	return &compressReader{
-		r: r,
+		r:  r,
 		zr: zr,
 	}, nil
 }

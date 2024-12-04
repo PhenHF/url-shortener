@@ -35,7 +35,7 @@ func ReturnShortUrl(generator func() string, resultAddr string) http.HandlerFunc
 		var resultUrl struct {
 			Url string `json:"response"`
 		}
-		
+
 		url := storage.Url{}
 
 		urlProducer, err := storage.NewUrlProducer("url.json")
@@ -43,19 +43,18 @@ func ReturnShortUrl(generator func() string, resultAddr string) http.HandlerFunc
 			return
 		}
 		defer urlProducer.Close()
-		
-		
+
 		if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
-			return 
+			return
 		}
-		
+
 		if len(url.OriginalUrl) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		
+
 		url.ShortUrl = generator()
-		
+
 		urlProducer.WriteUrl(&url)
 		resultUrl.Url = resultAddr + url.ShortUrl
 
@@ -63,7 +62,6 @@ func ReturnShortUrl(generator func() string, resultAddr string) http.HandlerFunc
 		if err != nil {
 			return
 		}
-
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
@@ -80,5 +78,6 @@ func PingDB(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 }

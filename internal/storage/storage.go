@@ -22,15 +22,15 @@ func init() {
 }
 
 type Url struct {
-	ID uint `json:"uuid,omitempty"`
-	ShortUrl string `json:"short_url,omitempty"`
+	ID          uint   `json:"uuid,omitempty"`
+	ShortUrl    string `json:"short_url,omitempty"`
 	OriginalUrl string `json:"original_url"`
 }
 
 var UrlStorage []Url
 
 type UrlProducer struct {
-	file *os.File
+	file    *os.File
 	encoder *json.Encoder
 }
 
@@ -41,7 +41,7 @@ func NewUrlProducer(filename string) (*UrlProducer, error) {
 	}
 
 	return &UrlProducer{
-		file: file,
+		file:    file,
 		encoder: json.NewEncoder(file),
 	}, nil
 }
@@ -57,7 +57,7 @@ func (up *UrlProducer) Close() {
 }
 
 type UrlConsumer struct {
-	file *os.File
+	file    *os.File
 	decoder *json.Decoder
 }
 
@@ -68,7 +68,7 @@ func NewUrlConsumer(filename string) (*UrlConsumer, error) {
 	}
 
 	return &UrlConsumer{
-		file: file,
+		file:    file,
 		decoder: json.NewDecoder(file),
 	}, nil
 }
@@ -80,15 +80,15 @@ func (uc *UrlConsumer) Read() (*Url, error) {
 	}
 	return url, nil
 }
- 
-func (uc *UrlConsumer) ReadAll() (error) {
+
+func (uc *UrlConsumer) ReadAll() error {
 	for {
 		readUrl, err := uc.Read()
 		if err != nil {
 			if err == io.EOF {
 				return nil
 			}
-			
+
 			return err
 		}
 		UrlStorage = append(UrlStorage, *readUrl)

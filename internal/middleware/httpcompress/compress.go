@@ -21,7 +21,7 @@ func GzipMiddleware(next http.Handler) http.Handler {
 			ow = cw
 			defer cw.Close()
 		}
-		
+
 		if strings.Contains(r.Header.Get("Content-Encoding"), "gzip") {
 			cr, err := newCompressReader(r.Body)
 			if err != nil {

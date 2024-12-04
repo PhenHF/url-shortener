@@ -52,7 +52,6 @@ func (lrw *LoggingResponseWriter) WriteHeader(statusCode int) {
 	lrw.responseData.statusCode = statusCode
 }
 
-
 func RequestLogger(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -67,9 +66,9 @@ func RequestLogger(h http.Handler) http.Handler {
 			ResponseWriter: w,
 			responseData:   resData,
 		}
-		
+
 		h.ServeHTTP(&lwr, r)
-		
+
 		duration := time.Since(start)
 		Log.Info("request",
 			zap.String("method", method),
