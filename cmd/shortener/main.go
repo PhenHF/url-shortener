@@ -19,6 +19,7 @@ func main() {
 	rt.Use(middlewareCopmpress.GzipMiddleware)
 	rt.Post(`/api/shorten`, handler.ReturnShortUrl(service.GetShortUrl, config.NetAddress.ResultAddr))
 	rt.Get(`/{id}`, handler.RedirectToOriginalUrl(&storage.UrlStorage))
+	rt.Get(`/ping`, handler.PingDB)
 	run(rt)
 }
 

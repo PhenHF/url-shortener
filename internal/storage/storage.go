@@ -1,10 +1,15 @@
 package storage
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"io"
 	"log"
 	"os"
+	"time"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func init() {
@@ -92,4 +97,22 @@ func (uc *UrlConsumer) ReadAll() (error) {
 
 func (uc *UrlConsumer) Close() {
 	uc.file.Close()
+}
+
+func InitDB() error {
+	db, err := sql.Open("pgx", "host=localhost user=postgres password=7435 dbname=postgres sslmode=disable")
+	if err != nil {
+		return err
+
+	}
+	defer db.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	if err = db.PingContext(ctx); err != nil {
+		return err
+	}
+
+	return nil
 }

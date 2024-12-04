@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	logger "github.com/PhenHF/url-shortener/internal/middleware/logger"
 	storage "github.com/PhenHF/url-shortener/internal/storage"
+	"go.uber.org/zap"
 )
 
 func RedirectToOriginalUrl(urlStorage *[]storage.Url) http.HandlerFunc {
@@ -67,4 +69,16 @@ func ReturnShortUrl(generator func() string, resultAddr string) http.HandlerFunc
 		w.WriteHeader(http.StatusCreated)
 		w.Write(response)
 	})
+}
+
+func PingDB(w http.ResponseWriter, r *http.Request) {
+	err := storage.InitDB()
+	if err != nil {
+		logger.Log.Error("err",
+			zap.String("DB error", err.Error()),
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
