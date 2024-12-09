@@ -10,16 +10,17 @@ import (
 	middlewareCopmpress "github.com/PhenHF/url-shortener/internal/middleware/httpcompress"
 	middlewareLogger "github.com/PhenHF/url-shortener/internal/middleware/logger"
 	service "github.com/PhenHF/url-shortener/internal/service"
-	"github.com/PhenHF/url-shortener/internal/storage"
+	storage "github.com/PhenHF/url-shortener/internal/storage"
 )
 
 func main() {
+	readyStorage := storage.BuildDB(*config.StorageConfig)
 	rt := chi.NewRouter()
 	rt.Use(middlewareLogger.RequestLogger)
 	rt.Use(middlewareCopmpress.GzipMiddleware)
-	rt.Post(`/api/shorten`, handler.ReturnShortUrl(service.GetShortUrl, config.NetAddress.ResultAddr))
-	rt.Get(`/{id}`, handler.RedirectToOriginalUrl(&storage.UrlStorage))
-	rt.Get(`/ping`, handler.PingDB)
+	rt.Post(`/api/shorten`, handler.ReturnShortUrl(service.GetShortUrl, config.NetAddress.ResultAddr, readyStorage))
+	rt.Post(`/api/shorten/batch`, handler.ReturnBatchShortUrl(service.GetShortUrl, config.NetAddress.ResultAddr, readyStorage))
+	rt.Get(`/{id}`, handler.RedirectToOriginalUrl(readyStorage))
 	run(rt)
 }
 

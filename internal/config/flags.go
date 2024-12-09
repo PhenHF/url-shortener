@@ -2,30 +2,34 @@ package config
 
 import (
 	"flag"
-	"os"
+
+	"github.com/PhenHF/url-shortener/internal/storage"
 )
 
 func init() {
+	loadFlags()
 	loadEnv()
 }
 
-var NetAddress struct {
-	StartServer string
-	ResultAddr  string
-}
+func loadFlags() {
+	var dbParam string
+	var fileParam string
 
-func loadEnv() {
 	flag.StringVar(&NetAddress.StartServer, "a", ":8080", "addr for start a server")
 	flag.StringVar(&NetAddress.ResultAddr, "b", "http://localhost:8080/", "addr for base result URL")
 
+	flag.StringVar(&dbParam, "d", "", "username:password for connection to DB")
+	flag.StringVar(&fileParam, "f", "", "filepath for save url in json file")
 	flag.Parse()
-
-	if serverAddr := os.Getenv("SERVER_ADDRESS"); serverAddr != "" {
-		NetAddress.StartServer = serverAddr
+	
+	if dbParam != "" {
+		StorageConfig.StorageType = storage.InDataBase
+		StorageConfig.Parameter = dbParam
+		return
 	}
 
-	if baseURL := os.Getenv("BASE_URL"); baseURL != "" {
-		NetAddress.ResultAddr = baseURL
+	if fileParam != "" {
+		StorageConfig.StorageType = storage.InFile
+		StorageConfig.Parameter = fileParam
 	}
-
 }
