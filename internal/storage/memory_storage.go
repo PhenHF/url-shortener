@@ -7,7 +7,7 @@ import (
 
 func newInMemoryStorage() (*inMemoryStorage, error) {
 	return &inMemoryStorage{
-		urlInfo: make(map[string]string),
+		urlInfo:   make(map[string]string),
 		currentID: 0,
 	}, nil
 }
@@ -15,17 +15,17 @@ func newInMemoryStorage() (*inMemoryStorage, error) {
 func (ms *inMemoryStorage) InsertOneUrl(ctx context.Context, url *Url) error {
 	ms.inMemoryStorageIdIncrement()
 	url.ID = ms.currentID
-	ms.urlInfo[url.ShortUrl] = url.OriginalUrl
+	ms.urlInfo[url.CorrelationId] = url.OriginalUrl
 	return nil
 }
 
 func (ms *inMemoryStorage) InsertMultipleUrl(ctx context.Context, urls *[]*Url) error {
 	for _, v := range *urls {
-		fmt.Println(v.ShortUrl)
+		fmt.Println(v.CorrelationId)
 		ms.inMemoryStorageIdIncrement()
 		v.ID = ms.currentID
-		ms.urlInfo[v.ShortUrl] = v.OriginalUrl
-	} 
+		ms.urlInfo[v.CorrelationId] = v.OriginalUrl
+	}
 	return nil
 }
 
@@ -43,5 +43,5 @@ func (ms inMemoryStorage) SelectOneUrl(ctx context.Context, shortUrl string) (st
 }
 
 func (ms *inMemoryStorage) inMemoryStorageIdIncrement() {
-	ms.currentID ++
+	ms.currentID++
 }

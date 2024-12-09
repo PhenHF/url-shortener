@@ -15,18 +15,17 @@ type storager interface {
 }
 
 type inMemoryStorage struct {
-	urlInfo map[string]string
+	urlInfo   map[string]string
 	currentID uint
 }
 
 type inFileStorage struct {
-	filename string
+	filename  string
 	currentID uint
-
 }
 
 type fileRD struct {
-	file *os.File
+	file    *os.File
 	encoder *json.Encoder
 	decoder *json.Decoder
 }
@@ -36,10 +35,10 @@ type inDataBaseStorage struct {
 }
 
 type Url struct {
-	ID uint
+	ID            uint
 	CorrelationId string `json:"correlation_id,omitempty"`
-	ShortUrl string `json:"short_url,omitempty"`
-	OriginalUrl string `json:"original_url"`
+	ShortUrl      string `json:"short_url,omitempty"`
+	OriginalUrl   string `json:"original_url"`
 }
 
 type Storage struct {
@@ -48,5 +47,15 @@ type Storage struct {
 
 type storageConfig struct {
 	StorageType storageType
-	Parameter string
+	Parameter   string
+}
+
+type DublicateUrl struct {
+	OriginalUrl string
+	ShortUrl    string
+}
+
+type ResultUrl struct {
+	CorrelationId string `json:"correlation_id"`
+	ShortUrl      string `json:"short_url"`
 }

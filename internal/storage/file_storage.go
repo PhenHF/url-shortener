@@ -9,10 +9,9 @@ import (
 )
 
 func newFileStorage(filename string) *inFileStorage {
-	return &inFileStorage {
-		filename: filename,
+	return &inFileStorage{
+		filename:  filename,
 		currentID: 0,
-
 	}
 }
 
@@ -23,7 +22,7 @@ func newFileRD(filename string) (*fileRD, error) {
 	}
 
 	return &fileRD{
-		file: file,
+		file:    file,
 		decoder: json.NewDecoder(file),
 		encoder: json.NewEncoder(file),
 	}, nil
@@ -56,7 +55,7 @@ func (fs *inFileStorage) InsertMultipleUrl(ctx context.Context, urls *[]*Url) er
 			return err
 		}
 	}
-	return nil	
+	return nil
 }
 
 func (fs *inFileStorage) SelectOneUrl(ctx context.Context, shortUrl string) (string, error) {
@@ -68,15 +67,15 @@ func (fs *inFileStorage) SelectOneUrl(ctx context.Context, shortUrl string) (str
 
 	for {
 		readUrl, err := fs.Read(frd)
-		
+
 		if err != nil {
 			if err == io.EOF {
 				return "", err
 			}
-			
+
 			return "", err
 		}
-		if readUrl.ShortUrl == shortUrl {
+		if readUrl.CorrelationId == shortUrl {
 			return readUrl.OriginalUrl, nil
 		}
 	}

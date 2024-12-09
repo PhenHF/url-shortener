@@ -21,7 +21,7 @@ func loadFlags() {
 	flag.StringVar(&dbParam, "d", "", "username:password for connection to DB")
 	flag.StringVar(&fileParam, "f", "", "filepath for save url in json file")
 	flag.Parse()
-	
+
 	if dbParam != "" {
 		StorageConfig.StorageType = storage.InDataBase
 		StorageConfig.Parameter = dbParam

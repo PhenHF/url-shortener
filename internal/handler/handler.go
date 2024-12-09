@@ -2,8 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
+	"strings"
 
 	middlewareLogger "github.com/PhenHF/url-shortener/internal/middleware/logger"
 	storage "github.com/PhenHF/url-shortener/internal/storage"
@@ -19,7 +21,7 @@ func RedirectToOriginalUrl(urlStorage storage.Storage) http.HandlerFunc {
 		shortUrl := r.PathValue("id")
 		res, err := urlStorage.SelectOneUrl(r.Context(), shortUrl)
 		if err != nil {
-			if err != io.EOF{
+			if err != io.EOF {
 				middlewareLogger.Log.Error("ERRROR", zap.String("msg", err.Error()))
 			}
 			w.WriteHeader(http.StatusBadRequest)
@@ -47,12 +49,18 @@ func ReturnShortUrl(generator func() string, resultAddr string, urlStorage stora
 		}
 
 		url.ShortUrl = generator()
-		
-		err := urlStorage.InsertOneUrl(r.Context(), &url)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+
+		var myErr *storage.UniqueUrlError
+		if err := urlStorage.InsertOneUrl(r.Context(), &url); err != nil {
+			if !errors.As(err, &myErr) {
+				middlewareLogger.Log.Error("ERROR", zap.String("msg", err.Error()))
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			shortUrl := strings.Split(err.Error(), ":")[1]
+			url.ShortUrl = shortUrl
 		}
+
 		resultUrl.Url = resultAddr + url.ShortUrl
 
 		response, err := json.Marshal(resultUrl)
@@ -69,29 +77,29 @@ func ReturnShortUrl(generator func() string, resultAddr string, urlStorage stora
 
 func ReturnBatchShortUrl(generator func() string, resultAddr string, urlStorage storage.Storage) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		type resultUrl struct{
-			CorrelationId string`json:"correlation_id"`
-			ShortUrl string `json:"short_url"`
+		type resultUrl struct {
+			CorrelationId string `json:"correlation_id"`
+			ShortUrl      string `json:"short_url"`
 		}
-		
+
 		urls := []*storage.Url{}
 		if err := json.NewDecoder(r.Body).Decode(&urls); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		
+
 		resultUrls := make([]resultUrl, 0)
 
 		for _, v := range urls {
 			v.ShortUrl = generator()
 			resultUrls = append(resultUrls, resultUrl{CorrelationId: v.CorrelationId, ShortUrl: resultAddr + v.ShortUrl})
 		}
-		
 		if err := urlStorage.InsertMultipleUrl(r.Context(), &urls); err != nil {
 			middlewareLogger.Log.Error("ERROR", zap.String("msg:", err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
 		response, err := json.Marshal(resultUrls)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
