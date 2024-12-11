@@ -8,10 +8,12 @@ import (
 )
 
 type storager interface {
-	InsertOneUrl(ctx context.Context, url *Url) error
+	InsertOneUrl(ctx context.Context, url *Url, userID uint) error
 	InsertMultipleUrl(ctx context.Context, urls *[]*Url) error
 	SelectOneUrl(ctx context.Context, shortUrl string) (string, error)
+	SelectAllPairUrl(ctx context.Context, userID uint) (*[]Url, error)
 	DeletePairUrl(ctx context.Context, shortUrl string) error
+	CreateUser(ctx context.Context) (uint, error)
 }
 
 type inMemoryStorage struct {

@@ -1,6 +1,8 @@
 package config
 
-import "github.com/PhenHF/url-shortener/internal/storage"
+import (
+	"github.com/PhenHF/url-shortener/internal/storage"
+)
 
 var NetAddress struct {
 	StartServer string
@@ -8,3 +10,5 @@ var NetAddress struct {
 }
 
 var StorageConfig = storage.NewStorageConfig()
+
+var SECRET_KEY string

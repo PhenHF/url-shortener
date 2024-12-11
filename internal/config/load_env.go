@@ -7,6 +7,10 @@ import (
 )
 
 func loadEnv() {
+	if SECRET_KEY = os.Getenv("SECRET_KEY"); SECRET_KEY == "" {
+		panic("SECRET_KEY is not defined")
+	}
+
 	if serverAddr := os.Getenv("SERVER_ADDRESS"); serverAddr != "" {
 		NetAddress.StartServer = serverAddr
 	}
